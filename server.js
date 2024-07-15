@@ -1,11 +1,24 @@
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/auth');
+const menuRoutes = require('./routes/menu');
+const orderRoutes = require('./routes/order');
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/menus', menuRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Payment processing endpoint
 app.post('/api/payment', async (req, res) => {
