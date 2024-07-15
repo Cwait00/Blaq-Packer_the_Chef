@@ -1,17 +1,30 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const { mongoURI } = require('./config');
-const authRoutes = require('./routes/authRoutes');
-const authRoutes = require('./routes/authRoutes');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const app = express();
-
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
-
 app.use(express.json());
-app.use('/api/auth', authRoutes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Payment processing endpoint
+app.post('/api/payment', async (req, res) => {
+  const { amount, paymentMethodId } = req.body;
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'usd',
+      payment_method: paymentMethodId,
+      confirm: true,
+    });
+    res.json({ success: true, paymentIntent });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Start server
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
+});
