@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const menuRoutes = require('./routes/menu');
 const orderRoutes = require('./routes/order');
-const errorHandler = require('./errorHandler'); // Import errorHandler
+const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
 
@@ -40,7 +40,7 @@ app.post('/api/payment', async (req, res) => {
     });
     res.json({ success: true, paymentIntent });
   } catch (error) {
-    next(error); // Pass error to errorHandler
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -48,7 +48,6 @@ app.post('/api/payment', async (req, res) => {
 app.use(errorHandler);
 
 // Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
 });
