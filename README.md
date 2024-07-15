@@ -40,7 +40,7 @@ Getting Started
 
 Prerequisites
 - Node.js version 16.x
-- MongoDB instance (cloud or local)
+- MongoDB instance (cloud)
 
 Installation
 1. Clone the repository:
